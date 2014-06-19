@@ -1,11 +1,13 @@
 #!/usr/bin/perl
 package sessionLibrary;
 use strict;
-use warnings;
+#use warnings;
 use Date::Calc qw(Today Localtime Mktime Add_Delta_DHMS Today_and_Now Date_to_Text);
 use String::Random;
 use CGI;
 use CGI::Cookie;
+
+# TAG: Master Version TAG
 
 # DATE:   20140611  :DATE
 # Program:  Package of session/authentication handling routines
@@ -61,7 +63,8 @@ our $sessionTimeOutDuration=defaultTimeOutDuration;
 
 my $cgi= new CGI;
 my $remoteIP4=$cgi->remote_addr();
-my $homeIP4='46.7.199.1';
+my $homeIP4='';
+# change this in calling program
 our $webAppName="DEFAULT";
 
 sub sessionNew {
@@ -252,7 +255,7 @@ sub showSessionLogIn {
 sessionLogIn0
 }
 
-sub showSessionEmbeddedLogIn {
+sub XshowSessionEmbeddedLogIn {
 # Purpose:  standardised login
 # Expects:  -
 # Returns:  -
@@ -350,6 +353,103 @@ sub showSessionEmbeddedLogIn {
   </form>
   </div>
 sessionEmbeddedLogIn0
+}
+
+sub showSessionEmbeddedLogIn {
+  #my ($action, $appFullPath, $targetUrl, $domain)=@_;
+  my ($action, $host, $appFullPath, $targetUrl, $domain)=@_;
+  my $sessionCookieName=sessionCookieName . $domain;
+  my $expiryTime=sessionCookieExpiry();
+
+  print <<__jsonCaller0;
+  <style>
+    #login {
+      top: 0px;
+      width: 200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    red{
+      color: red;
+    }
+    blue{
+      color: blue;
+    }
+  </style>
+  <script type="text/javascript">
+    // unchanging bits:
+    var errorMessage="<small><center><red>please provide your login details</red></center></small>";
+    var failedLogin="<small><center><red>that's not right</red></center></small>";
+    var pageTurning="<small><center><blue>turning page...</blue></center></small>";
+    var loginAdvice="<small><center>Login:</center></small>";
+    var checkingAdvice="<small><center><blue>checking that...</blue></center></small>";
+    var error=0; // to match back-end value
+
+    // bits substituted by perl as js is printed to UA
+    var sessionJSON=$sessionJSON;
+    var myLoginScriptUrl='$appFullPath';
+    var targetUrl='$targetUrl';
+    var sessionCookieName='$sessionCookieName';
+    var expiryTime='$expiryTime';
+    var action=$sessionJSON;
+
+    // the authorising code for UA
+    function authoriseMe () {
+    /*
+      Purpose:  Pass user credentials to authoriser back-end
+      Expects:  -
+      Returns:  -
+    */
+
+    var feedback=document.getElementById('feedback');
+    // first get user details
+    var user=document.getElementById('user').value;
+    var pass=document.getElementById('pass').value;
+    // enforce non-blank passwords as well user
+    if (user == "" || pass =="") {
+      feedback.innerHTML=errorMessage;
+      exit;
+    }
+    else if (feedback.innerHTML == errorMessage) {
+      feedback.innerHTML=loginAdvice;
+    }
+    feedback.innerHTML=checkingAdvice;
+
+    // prepare to send to server
+    jQuery.post(
+          myLoginScriptUrl,
+          { 'user' : user,
+            'pass' : pass,
+            'action' : action
+          },
+          function(data, textStatus) {
+            if (data.status == 'OK') {
+              feedback.innerHTML=pageTurning;
+              document.cookie=sessionCookieName + "=" + data.sessionId + "; expires=" + expiryTime + ";";
+              window.location.replace(targetUrl);
+            }
+            else {
+              feedback.innerHTML=failedLogin;
+            }
+          });
+    } // fn
+  </script>
+  <div id="login">
+  <form method="POST" action="$action" id="submitForm" onsubmit="authoriseMe();">
+  <input type="hidden" name="action" id="action" value="$sessionLogIn">
+  <!-- <input type="text" id="debug" size="30"> -->
+  <table>
+  <tr><td id="feedback" colspan="2" style="width: 100%; border-bottom: 1px solid black;"><small><center>Login:</center></small></td></tr>
+  <tr><td>User:</td><td><input type="text" name="user" id="user"></td></tr>
+  <tr><td>Pass:</td><td><input type="password" name="pass" id="pass"></td></tr>
+  <tr><td colspan="2" style="border-top: 1px solid black;">
+  <center><input type="button" value="Log In" onclick="authoriseMe();">
+  <input style="display: none;" type="submit" value="I'm an invisible button!"></center></td></tr>
+  </table>
+  </form>
+  </div>
+__jsonCaller0
+
 }
 
 sub sessionAuthenticate {
