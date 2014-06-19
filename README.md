@@ -3,7 +3,7 @@ sessionManager
 
 Package of authentication/session handling routines
 
-DATE:     20140611  :DATE
+DATE:     20140611\n
 Program:  Package of authentication/session handling routines
 Object: Facilitate re-usability of code to authenticate user, return a sessionCode
        (aka token) which can subsequently be used without any further transfer of
