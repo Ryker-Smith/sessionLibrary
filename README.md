@@ -1,4 +1,4 @@
-sessionManager
+sessionLibrary
 ==============
 
 Package of authentication/session handling routines
