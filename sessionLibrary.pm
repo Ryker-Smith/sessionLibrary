@@ -138,6 +138,11 @@ sub showSessionLogIn {
 # Purpose:  standardised login
 # Expects:  -
 # Returns:  -
+
+# This should now be changed to relect the improved embedded login subroutine.
+# Should only need to reference the standard top, bottom and sandwich a call to the embedded 
+# sub routine between them
+#
   # first get url of submit routine
   my $action=shift;
   my $style=shift;
