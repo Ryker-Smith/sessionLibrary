@@ -255,109 +255,109 @@ sub showSessionLogIn {
 sessionLogIn0
 }
 
-sub XshowSessionEmbeddedLogIn {
-# Purpose:  standardised login
-# Expects:  -
-# Returns:  -
-  # first get url of submit routine
-  my ($action, $host, $appFullPath, $targetUrl, $domain)=@_;
-  my $sessionCookieName=sessionCookieName . $domain;
-  my $expiryTime=sessionCookieExpiry();
-  open LOG, "> /var/www/treeBeard/html/yearPlanner/yearPlanner.log";
-  print LOG "[$action][$host][$appFullPath][$targetUrl][$domain]\n";
-  print <<sessionEmbeddedLogIn0;
-  <style>
-    #login {
-      top: 0px;
-      width: 200px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    red{
-      color: red;
-    }
-    blue{
-      color: blue;
-    }
-  </style>
-  <script type="text/javascript">
-  
-  var myHost='$host';
-  var myLoginScriptUrl='$appFullPath';
-  var errorMessage="<small><center><red>please provide your login details</red></center></small>";
-  var failedLogin="<small><center><red>that's not right</red></center></small>";
-  var pageTurning="<small><center><blue>turning page...</blue></center></small>";
-  var loginAdvice="<small><center>Login:</center></small>";
-  var checkingAdvice="<small><center><blue>checking that...</blue></center></small>";
-  var error=0; // to match back-end value
-  // why this next, when above also???
-  var targetUrl='$targetUrl';
-  
-  function authoriseMe () {
-    /*
-      Purpose:  Pass user credentials to authoriser back-end
-      Expects:  -
-      Returns:  -
-    */
-    var serverResponse;
-    var myLoginScript=myLoginScriptUrl;
-    // first get user details
-    var user=document.getElementById('user').value;
-    var pass=document.getElementById('pass').value;
-    // enforce non-blank passwords as well user
-    if (user == "" || pass =="") {
-      document.getElementById('feedback').innerHTML=errorMessage;
-      exit;
-    }
-    else if (document.getElementById('feedback').innerHTML == errorMessage) {
-      document.getElementById('feedback').innerHTML=loginAdvice;
-    }
-    document.getElementById('feedback').innerHTML=checkingAdvice;
-    // prepare to send to server
-    var sessionRequest= new XMLHttpRequest();
-    // prepare synchronous request
-    // NB temporary bodge in use here: NB
-    myLoginScript=myLoginScript+"?user="+user+"&pass="+pass+"&action=$sessionJSON";
-    sessionRequest.open("GET", myLoginScript, false);
-    sessionRequest.send();
-    if (sessionRequest.status == 200) {
-      serverResponse=JSON.parse(sessionRequest.responseText);
-      if (serverResponse.status == "OK") {
-        document.getElementById('feedback').innerHTML=pageTurning;
-        // need to add cookie expiry
-        document.cookie="$sessionCookieName="+serverResponse.sessionId + "; expires=$expiryTime;";
-        targetUrl=targetUrl+"?sessionId="+serverResponse.sessionId;
-        window.location.replace(targetUrl);
-      }
-      else {
-        // login fail
-        document.getElementById('feedback').innerHTML=failedLogin;
-      }
-    }
-    else {
-      // do what here? explode?
-    }
-  }
-  </script>
-  <div id="login">
-  <form method="POST" action="$action" id="submitForm" onsubmit="authoriseMe();">
-  <input type="hidden" name="action" id="action" value="$sessionLogIn">
-  <table>
-  <tr><td id="feedback" colspan="2" style="width: 100%; border-bottom: 1px solid black;"><small><center>Login:</center></small></td></tr>
-  <tr><td>User:</td><td><input type="text" name="user" id="user"></td></tr>
-  <tr><td>Pass:</td><td><input type="password" name="pass" id="pass"></td></tr>
-  <tr><td colspan="2" style="border-top: 1px solid black;">
-  <center><input type="button" value="Log In" onclick="authoriseMe();">
-  <input style="display: none;" type="submit" value="I'm an invisible button!"></center></td></tr>
-  </table>
-  </form>
-  </div>
-sessionEmbeddedLogIn0
-}
+# sub XshowSessionEmbeddedLogIn {
+# # Purpose:  standardised login
+# # Expects:  -
+# # Returns:  -
+#   # first get url of submit routine
+#   my ($action, $host, $appFullPath, $targetUrl, $domain)=@_;
+#   my $sessionCookieName=sessionCookieName . $domain;
+#   my $expiryTime=sessionCookieExpiry();
+#   open LOG, "> /var/www/treeBeard/html/yearPlanner/yearPlanner.log";
+#   print LOG "[$action][$host][$appFullPath][$targetUrl][$domain]\n";
+#   print <<sessionEmbeddedLogIn0;
+#   <style>
+#     #login {
+#       top: 0px;
+#       width: 200px;
+#       margin-left: auto;
+#       margin-right: auto;
+#     }
+#     red{
+#       color: red;
+#     }
+#     blue{
+#       color: blue;
+#     }
+#   </style>
+#   <script type="text/javascript">
+#   
+#   var myHost='$host';
+#   var myLoginScriptUrl='$appFullPath';
+#   var errorMessage="<small><center><red>please provide your login details</red></center></small>";
+#   var failedLogin="<small><center><red>that's not right</red></center></small>";
+#   var pageTurning="<small><center><blue>turning page...</blue></center></small>";
+#   var loginAdvice="<small><center>Login:</center></small>";
+#   var checkingAdvice="<small><center><blue>checking that...</blue></center></small>";
+#   var error=0; // to match back-end value
+#   // why this next, when above also???
+#   var targetUrl='$targetUrl';
+#   
+#   function authoriseMe () {
+#     /*
+#       Purpose:  Pass user credentials to authoriser back-end
+#       Expects:  -
+#       Returns:  -
+#     */
+#     var serverResponse;
+#     var myLoginScript=myLoginScriptUrl;
+#     // first get user details
+#     var user=document.getElementById('user').value;
+#     var pass=document.getElementById('pass').value;
+#     // enforce non-blank passwords as well user
+#     if (user == "" || pass =="") {
+#       document.getElementById('feedback').innerHTML=errorMessage;
+#       exit;
+#     }
+#     else if (document.getElementById('feedback').innerHTML == errorMessage) {
+#       document.getElementById('feedback').innerHTML=loginAdvice;
+#     }
+#     document.getElementById('feedback').innerHTML=checkingAdvice;
+#     // prepare to send to server
+#     var sessionRequest= new XMLHttpRequest();
+#     // prepare synchronous request
+#     // NB temporary bodge in use here: NB
+#     myLoginScript=myLoginScript+"?user="+user+"&pass="+pass+"&action=$sessionJSON";
+#     sessionRequest.open("GET", myLoginScript, false);
+#     sessionRequest.send();
+#     if (sessionRequest.status == 200) {
+#       serverResponse=JSON.parse(sessionRequest.responseText);
+#       if (serverResponse.status == "OK") {
+#         document.getElementById('feedback').innerHTML=pageTurning;
+#         // need to add cookie expiry
+#         document.cookie="$sessionCookieName="+serverResponse.sessionId + "; expires=$expiryTime;";
+#         targetUrl=targetUrl+"?sessionId="+serverResponse.sessionId;
+#         window.location.replace(targetUrl);
+#       }
+#       else {
+#         // login fail
+#         document.getElementById('feedback').innerHTML=failedLogin;
+#       }
+#     }
+#     else {
+#       // do what here? explode?
+#     }
+#   }
+#   </script>
+#   <div id="login">
+#   <form method="POST" action="$action" id="submitForm" onsubmit="authoriseMe();">
+#   <input type="hidden" name="action" id="action" value="$sessionLogIn">
+#   <table>
+#   <tr><td id="feedback" colspan="2" style="width: 100%; border-bottom: 1px solid black;"><small><center>Login:</center></small></td></tr>
+#   <tr><td>User:</td><td><input type="text" name="user" id="user"></td></tr>
+#   <tr><td>Pass:</td><td><input type="password" name="pass" id="pass"></td></tr>
+#   <tr><td colspan="2" style="border-top: 1px solid black;">
+#   <center><input type="button" value="Log In" onclick="authoriseMe();">
+#   <input style="display: none;" type="submit" value="I'm an invisible button!"></center></td></tr>
+#   </table>
+#   </form>
+#   </div>
+# sessionEmbeddedLogIn0
+# }
 
 sub showSessionEmbeddedLogIn {
   #my ($action, $appFullPath, $targetUrl, $domain)=@_;
-  my ($action, $host, $appFullPath, $targetUrl, $domain)=@_;
+  my ($action, $appFullPath, $targetUrl, $domain)=@_;
   my $sessionCookieName=sessionCookieName . $domain;
   my $expiryTime=sessionCookieExpiry();
 
