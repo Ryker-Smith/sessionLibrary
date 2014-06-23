@@ -7,6 +7,8 @@ use String::Random;
 use CGI;
 use CGI::Cookie;
 
+use simpleVars ':all';
+
 # TAG: Master Version TAG
 
 # DATE:   20140611  :DATE
@@ -53,6 +55,9 @@ use constant sessionNull=>"-";
 our $sessionLogIn=701;
 our $sessionLogOut=702;
 our $sessionJSON=703;
+
+my $sessionHouseKeepingMax=50;
+my $sessionHouseKeepingTicker='sessionHouseKeepingTicker';
 
 our $sessionVersion="0.1";
 our $sessionFormat="ncccnccc";
@@ -107,9 +112,13 @@ sub sessionDelete {
 # Returns:  resultCode
   my ($qry, $qh);
   my $sessionId=shift;
+  my $user=sessionUser($sessionId);
+  sessionLog($sessionId, $sessionLogOut, $user);
   $qry ="DELETE FROM $sessionTable WHERE sessionId LIKE ?;";
   $qh=$dbh->prepare($qry);
   $qh->execute($sessionId);
+  my $presentTick=getValue(\$dbh, $sessionHouseKeepingTicker);
+  setValue(\$dbh, $sessionHouseKeepingTicker, $presentTick--);
 } # sessionDelete
 
 sub sessionUpdate {
