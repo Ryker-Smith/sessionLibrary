@@ -459,11 +459,11 @@ __jsonCaller0
 
 sub sessionHandleJSON {
   # Why pass $a parameter?
-  my ($cgi, $a, $u, $p,)=shift;
+  my ($cgi, $a, $u, $p)=@_;
   my ($sessionId, $json);
   #
   print $$cgi->header('application/json');
-  sessionLog('connect', $a, "JSON: [$u]");
+  sessionLog('CONNECT', $a, "JSON: [$u]");
   $sessionId=sessionAuthenticate($u, $p);
   sessionLog($sessionId, $a, "RESULT");
   if ($sessionId == error) {
