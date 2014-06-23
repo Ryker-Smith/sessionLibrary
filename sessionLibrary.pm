@@ -40,7 +40,7 @@ our @EXPORT_OK= qw (
                     &sessionCookieGet &sessionCookieSet &sessionCookieExpiry
                     sessionNull
                     $sessionLogIn $sessionVersion $sessionTable $sessionTimeOutDuration
-                    $sessionUsers $sessionLog &sessionCleanUp $sessionJSON $sessionFormat
+                    $sessionUsers $sessionLog &sessionTidyUp $sessionJSON $sessionFormat
                     $webAppName
                     );
 our %EXPORT_TAGS = (all => [@EXPORT_OK]);
@@ -117,8 +117,17 @@ sub sessionDelete {
   $qry ="DELETE FROM $sessionTable WHERE sessionId LIKE ?;";
   $qh=$dbh->prepare($qry);
   $qh->execute($sessionId);
+  # the hosekeeping ticker is used to trigger session tidy-ups
   my $presentTick=getValue(\$dbh, $sessionHouseKeepingTicker);
-  setValue(\$dbh, $sessionHouseKeepingTicker, $presentTick--);
+  if ($presentTick < 1) {
+    # below threshhold, reset ticker ...
+    setValue(\$dbh, $sessionHouseKeepingTicker, $sessionHouseKeepingMax);
+    # ... and then call tidy up
+  }
+  else {
+    $presentTick--;
+    setValue(\$dbh, $sessionHouseKeepingTicker, $presentTick);
+  }
 } # sessionDelete
 
 sub sessionUpdate {
@@ -696,13 +705,15 @@ sub sessionFlagOff {
   $qh->execute($sessionId);
 }
 
-sub sessionCleanUp {
+sub sessionTidyUp {
 # Purpose:  remove expired sessions from db
 # Expects:  
 # Returns:  
 
   # to follow...
-#  getS
+# get list of sessions
+# then compare time now with last time active
+# if above max time then delete
   return 1;
 }
 
