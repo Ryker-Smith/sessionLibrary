@@ -34,7 +34,7 @@ our @EXPORT_OK= qw (
                     &showSessionLogIn &showSessionEmbeddedLogIn &sessionUser
                     &sessionAuthenticate &sessionSanityFail
                     &sessionFlagOn $sessionLogOut &sessionEnd 
-                    &sessionTimeoutWatcher &sessionLog
+                    &sessionTimeoutWatcher &sessionLog &sessionHandleJSON
                     &sessionCookieGet &sessionCookieSet &sessionCookieExpiry
                     sessionNull
                     $sessionLogIn $sessionVersion $sessionTable $sessionTimeOutDuration
@@ -455,6 +455,30 @@ sub showSessionEmbeddedLogIn {
   </div>
 __jsonCaller0
 
+}
+
+sub sessionHandleJSON {
+  # Why pass $a parameter?
+  my ($cgi, $a, $u, $p,)=shift;
+  my ($sessionId, $json);
+  #
+  print $$cgi->header('application/json');
+  sessionLog('connect', $a, "JSON: [$u]");
+  $sessionId=sessionAuthenticate($u, $p);
+  sessionLog($sessionId, $a, "RESULT");
+  if ($sessionId == error) {
+    $json="{\"status\": \"ERROR\", \"sessionId\": \"\"}";
+    print $json;
+  }
+  elsif (length($sessionId) == length($sessionFormat)) {
+    # prepare the JSON object
+    $json="{\"status\": \"OK\", \"sessionId\": \"$sessionId\"}";
+    # now print the JSON object, which causes the embedded form to
+    # generate cookie on browser side
+    print $json;
+  }
+  sessionLog($sessionId, $a, "REPLY: $json");
+  return $sessionId;
 }
 
 sub sessionAuthenticate {
